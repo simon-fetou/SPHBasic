@@ -40,14 +40,14 @@ def init_part(Mx,My):
     pres = np.zeros(Npart)
     ipart=0
 
-    for i in range(int(Mx/2)):
+    for i in range(int(Mx)):
         for j in range(My):
-            
+
             x=(lx_domain/2-lx_patch/2)+i*dx+dx/2    #Pour centrer le patch 
-            y=j*dx+dx/2
+            y=j*dy + dy/2
             pos[ipart]= x,y 
 
-            #initializing density of all particles respecting hydrostatic and TAIT equations
+            #initializing density of particle respecting hydrostatic and TAIT equations
             a = 1                      #coefficient
             b = -(gamma*(rho_0**(gamma-1))*np.abs(g[1])/(c_ref**2))*(ly_patch-pos[ipart][1])
             c= -(rho_0**gamma)*(1 + gamma*pres0/(rho_0*(c_ref**2)))
@@ -55,10 +55,8 @@ def init_part(Mx,My):
             rhoG = rho_0                                           # root guess
             rho[ipart]=newtonRaphson_poly(a, b, c, n, rhoG)
 
-            pres[ipart] = pres0 + rho[ipart]*np.abs(g[1])*(ly_patch-pos[i][1])
+            pres[ipart] = pres0 + rho[ipart]*np.abs(g[1])*(ly_patch-pos[ipart][1])
 
-            #rho[ipart]=newtonRaphson_poly()
-            #rho[ipart]= rho_0*(1.+(gamma*g[1]/(c_ref**2)*(ly_patch-y)))**(1./gamma) #avec un abus sur la cond. hydrostatique
             ipart+=1
 
     return pos, rho, pres
