@@ -55,12 +55,11 @@ def main():
     pres = np.zeros(Npart)
 
     # Initialisation des particules
-    pos, rho = init_part(Mx,My)
+    pos, rho, pres = init_part(Mx,My)
     # Question : est-ce que ipart est egal à Npart????
 
     #Saving the initial time vtk file
     write_vtk(f"champs{0}.vtk", pos, vel, accel, rho, pres)
-
 
     # Boucle temporelle (avec affichage des resultats toutes les nsave iterations
     start = time.time()
