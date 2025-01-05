@@ -168,6 +168,10 @@ def animate_vtk(folder_path):
         ax_pressure.clear()
         ax_velocityQuiver.clear()
         ax_velocity.clear()
+
+        time_template = 'time = %.2fs'
+        time_text = ax[0,0].text(1.1*lx_domain,1.2*ly_domain,'') 
+        time_text.set_text(time_template%(0.))
         
         # Get the data for the current frame
         filepath = os.path.join(folder_path, vtk_files[frame])
@@ -230,6 +234,8 @@ def animate_vtk(folder_path):
             velocity_cb = fig.colorbar(scat3, ax=ax_velocity)
             velocity_cb.set_label('Velocity Magnitude')
 
+        time_text.set_text(time_template%(frame*nsave*dt))
+
         return fig, scat1, scat2, quiv, scat3
     
     ani = animation.FuncAnimation(fig, update, frames=len(vtk_files), repeat=False)
@@ -240,8 +246,8 @@ def animate_vtk(folder_path):
 
 # Main application
 if __name__ == "__main__":
-    # Path to folder containing .vtk files
     
+    # Path to folder containing .vtk files
     vtk_folder_path = r"C:\Users\simon\GitProjects\SPHBasic\data"
     
     anim = animate_vtk(vtk_folder_path)
