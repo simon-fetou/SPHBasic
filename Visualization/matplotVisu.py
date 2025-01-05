@@ -7,6 +7,8 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # Now you can import parameters as prm
 import parameters as prm
+import time
+import re
 
 #assigning global variables for local use
 
@@ -132,13 +134,17 @@ def parse_vtk(filepath):
     return data
 
 def animate_vtk(folder_path):
-    vtk_files = sorted([f for f in os.listdir(folder_path) if f.endswith('.vtk')])
+
+    #vtk_files = sorted([f for f in os.listdir(folder_path) if f.endswith('.vtk')])
+    vtk_files = sorted(
+                        [f for f in os.listdir(folder_path) if f.endswith('.vtk')],
+                        key=lambda x: int(re.search(r'\d+', x).group())
+                      )
 
     # Create subplots: One for density, one for pressure, and one for velocity magnitude
     fig = plt.figure(figsize=(12,8))
     plt.set_cmap('jet')
     ax = fig.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
-    
     
     # Extract individual axes from the array
     ax_density = ax[0, 0]
@@ -224,7 +230,6 @@ def animate_vtk(folder_path):
             velocity_cb = fig.colorbar(scat3, ax=ax_velocity)
             velocity_cb.set_label('Velocity Magnitude')
 
-        
         return fig, scat1, scat2, quiv, scat3
     
     ani = animation.FuncAnimation(fig, update, frames=len(vtk_files), repeat=False)
@@ -236,11 +241,7 @@ def animate_vtk(folder_path):
 # Main application
 if __name__ == "__main__":
     # Path to folder containing .vtk files
-    print('--------------------------')
     
-    print('x0 = ', lx_domain)
-    print('x0 = ', ly_domain)
-    print('----------------------')
     vtk_folder_path = r"C:\Users\simon\GitProjects\SPHBasic\data"
     
     anim = animate_vtk(vtk_folder_path)
