@@ -16,6 +16,7 @@ g = np.array([0., -0.5])
 
 # Proprietes des fluides
 rho_0 = 1. # densite de reference
+pres0 = 1.
 gamma = 1.
 vel_ref = 0.5*np.sqrt(abs(g[1])*ly_patch)
 c_ref = 10*vel_ref
@@ -38,4 +39,4 @@ m_0 = rho_0*(dx**2)
 Tf = 4
 dt = h/(8*c_ref)
 N = int(Tf/dt)
-nsave = 1
+nsave = 5
