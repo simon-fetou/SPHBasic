@@ -178,19 +178,19 @@ def init_part(Mx,My):
 *****_______****
 *****_______****
 """
-# Domaine et taille du patch initial
-lx_patch =1
-ly_patch =1
-lx_domain = 2
-ly_domain = 2
+
+#Domaine et taille du patch initial
+lx_patch =1.
+ly_patch =1.
+lx_domain = 2.
+ly_domain = 2.
 
 # Gravite
-#g=0.5
 g = np.array([0., -0.5])
 
 # Proprietes des fluides
-rho_0 = 1 # densite de reference
-gamma = 1
+rho_0 = 1. # densite de reference
+gamma = 1.
 vel_ref = 0.5*np.sqrt(abs(g[1])*ly_patch)
 c_ref = 10*vel_ref
 k = rho_0*c_ref**2/gamma # coefficient dans l'equation de Tait
