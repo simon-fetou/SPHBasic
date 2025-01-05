@@ -10,6 +10,7 @@ from initConditions.initConditions import init_part
 from equations.kernel import length, gradW
 from equations.timeStep import Euler_step
 from Visualization.visu import init_plot, update_plot
+from dataExtraction.extract import write_vtk
 
 #assigning global variables for local use
 
@@ -47,6 +48,7 @@ def main():
     # Initialiation des tableaux
     pos = np.zeros((Npart, 2))
     vel = np.zeros((Npart, 2))
+    accel = np.zeros((Npart, 2))
     drho_dt = np.zeros(Npart)
     drhou_dt = np.zeros((Npart,2))
     rho = np.zeros(Npart)
@@ -56,6 +58,8 @@ def main():
     pos, rho = init_part(Mx,My)
     # Question : est-ce que ipart est egal à Npart????
 
+    #Saving the initial time vtk file
+    write_vtk(f"champs{0}.vtk", pos, vel, accel, rho, pres)
 
     # Preparation de la figure pour l'animation
     plt.close("all")
@@ -67,7 +71,10 @@ def main():
     start = time.time()
     for n in range(1,N):
         pos,vel,rho,pres = Euler_step(n,pos,vel,rho,pres)
-        #print('iteration',n,'time',n*dt)
+
+        #Saving the vtk file
+        write_vtk(f"champs{n}.vtk", pos, vel, accel, rho, pres)
+
         if n%nsave==0:
             end = time.time()
             print('iteration {} time {:.5f} tpsCPU {:.2f}'.format(n,n*dt,(end-start)) )
