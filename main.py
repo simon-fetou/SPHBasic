@@ -62,10 +62,10 @@ def main():
     write_vtk(f"champs{0}.vtk", pos, vel, accel, rho, pres)
 
     # Preparation de la figure pour l'animation
-    plt.close("all")
-    fig, cax1, cax2, cax3, scat1, scat2, scat3, quiv, time_text, time_template = init_plot()
-    plt.show(block=False)
-    plt.pause(0.1)
+    #plt.close("all")
+    #fig, cax1, cax2, cax3, scat1, scat2, scat3, quiv, time_text, time_template = init_plot()
+    #plt.show(block=False)
+    #plt.pause(0.1)
 
     # Boucle temporelle (avec affichage des resultats toutes les nsave iterations
     start = time.time()
@@ -73,16 +73,20 @@ def main():
         pos,vel,rho,pres = Euler_step(n,pos,vel,rho,pres)
 
         #Saving the vtk file
-        write_vtk(f"champs{n}.vtk", pos, vel, accel, rho, pres)
+        #write_vtk(f"champs{n}.vtk", pos, vel, accel, rho, pres)
 
         if n%nsave==0:
+
+            #Saving the vtk file
+            write_vtk(f"champs{n}.vtk", pos, vel, accel, rho, pres)
+            
             end = time.time()
             print('iteration {} time {:.5f} tpsCPU {:.2f}'.format(n,n*dt,(end-start)) )
             start = time.time()
-            time_text.set_text(time_template%(n*dt))
-            update_plot(pos, pres, rho, vel, fig, cax1, cax2, cax3, scat1, scat2, scat3, quiv)
-            plt.draw()
-            plt.pause(0.01)
+            #time_text.set_text(time_template%(n*dt))
+            #update_plot(pos, pres, rho, vel, fig, cax1, cax2, cax3, scat1, scat2, scat3, quiv)
+            #plt.draw()
+            #plt.pause(0.01)
 
 
 if __name__ == "__main__":
