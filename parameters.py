@@ -5,38 +5,40 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from random import random as rand
 import time
 
-# Domaine et taille du patch initial
-lx_patch =1.
-ly_patch =1.75
-lx_domain = 2.
-ly_domain = 2.
+#-----------------------------Global parameters---------------------------
+g = np.array([0., -9.81])                   # gravity
 
-# Gravite
-g = np.array([0., -9.81])
+#------------------------Domain and Fluid patch parameters--------------------
+lxDomain = 2.
+lyDomain = 2.
+lxFluid = 1.
+lyFluid = 1.75
+x0F = (lxDomain/2-lxFluid/2)                #centering the fluid patch (x dir)
+y0F = 0.                                    # from bottom of recepient (y dir)
 
-# Proprietes des fluides
-rho_0 = 1. # densite de reference
-pres0 = 0
+#-----------------------------Kernel parameters---------------------------
+h = 0.1                                     # Smoothing length
+h_sur_dx = 1                                # number of fluid particles within h proximity of a particle
+
+#-------------------------------Fluid properties----------------------------
+rho0 = 1.                                   # reference density
+press0 = 0                                   # reference pressure
 gamma = 1.
-vel_ref = 0.5*np.sqrt(abs(g[1])*ly_patch)
-c_ref = 10*vel_ref
-k = rho_0*c_ref**2/gamma # coefficient dans l'equation de Tait
+velRef = 0.5*np.sqrt(abs(g[1])*lyFluid)     # reference velocity
+cRef = 10*velRef                            # reference sound velocity
+k = rho0*cRef**2/gamma                      # TAIT equation coefficient
+alpha = 0.5                                 # Artificial viscosity 
 
-# Parametres numeriques
-h = 0.1 # Smoothing length
-alpha = 0.5  # Coefficient de viscosite artificielle
-h_sur_dx = 2 # 
-
-# Constantes du probleme
+#-----------------------------Fluid patch discretization------------------
 dx = h/h_sur_dx
 dy = dx
-Mx = int(lx_patch/dx)
-My = int(ly_patch/dy)
+Mx = int(lxFluid/dx)
+My = int(lyFluid/dy)
 Npart = int(Mx*My)
-m_0 = rho_0*(dx**2)
+m0 = rho0*(dx*dy)                           #mass of a fluid particle
 
-# Parametres temporels
+#-----------------------------Times parameters-----------------------------
 Tf = 2
-dt = h/(8*c_ref)
-N = int(Tf/dt)
-nsave = 10
+dt = h/(8*cRef)
+Nt = int(Tf/dt)
+nsave = 10                                  # saving interval

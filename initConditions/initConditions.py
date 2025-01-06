@@ -4,28 +4,30 @@ from otherFunctions.NewtonRaphson import newtonRaphson_poly
 
 #assigning global variables for local use
 
-lx_domain = prm.lx_domain
-ly_domain = prm.ly_domain
+lxDomain = prm.lxDomain
+lyDomain = prm.lyDomain
 dx = prm.dx
 dy = prm.dy
 
-lx_patch = prm.lx_patch
-ly_patch = prm.ly_patch
+x0F = prm.x0F
+y0F = prm.y0F
+lxFluid = prm.lxFluid
+lyFluid = prm.lyFluid
 
 h = prm.h
 alpha = prm.alpha
 
-c_ref = prm.c_ref
+cRef = prm.cRef
 
-m_0 = prm.m_0
+m0 = prm.m0
 k = prm.k
 
-rho_0 = prm.rho_0
-pres0 = prm.pres0
+rho0 = prm.rho0
+press0 = prm.press0
 
 dt = prm.dt
 Tf = prm.Tf
-N = prm.N
+Nt = prm.Nt
 nsave= prm.nsave
 
 gamma = prm.gamma
@@ -34,29 +36,44 @@ Npart = prm.Npart
 
 
 def init_part(Mx,My):
+    """
+    function initializes fluid particles in the domain 
+
+    Arguments:
+    Mx: Number of fluid particles in x direction
+    My: Number of fluid particles in y direction
+    
+    Returns:
+    pos: pos[i] = [x,y] position of the fluid particles
+    rho: rho[i] = [rho] density of the fluid particles
+    press: press[i] = [press] pressure of the fluid particles
+    """
 
     pos = np.zeros((Npart, 2))
     rho = np.zeros(Npart)
-    pres = np.zeros(Npart)
+    press = np.zeros(Npart)
     ipart=0
 
     for i in range(int(Mx)):
         for j in range(My):
 
-            x=(lx_domain/2-lx_patch/2)+i*dx+dx/2    #Pour centrer le patch 
-            y=j*dy + dy/2
+            x= x0F + i*dx + dx/2        # x-coordinate of Fluid patch from left start 
+            y= y0F + j*dy + dy/2        # y-coordinate of Fluid patch from bottom start
             pos[ipart]= x,y 
 
             #initializing density of particle respecting hydrostatic and TAIT equations
-            a = 1                      #coefficient
-            b = -(gamma*(rho_0**(gamma-1))*np.abs(g[1])/(c_ref**2))*(ly_patch-pos[ipart][1])
-            c= -(rho_0**gamma)*(1 + gamma*pres0/(rho_0*(c_ref**2)))
+                #coefficients (ax^n + bx + c = 0)
+            a = 1
+            b = -(gamma*(rho0**(gamma-1))*np.abs(g[1])/(cRef**2))*(lyFluid-pos[ipart][1])
+            c= -(rho0**gamma)*(1 + gamma*press0/(rho0*(cRef**2)))
             n= gamma
-            rhoG = rho_0                                           # root guess
+                #Root guess
+            rhoG = rho0                                          
+
             rho[ipart]=newtonRaphson_poly(a, b, c, n, rhoG)
 
-            pres[ipart] = pres0 + rho[ipart]*np.abs(g[1])*(ly_patch-pos[ipart][1])
+            press[ipart] = press0 + rho[ipart]*np.abs(g[1])*(lyFluid-pos[ipart][1])
 
             ipart+=1
 
-    return pos, rho, pres
+    return pos, rho, press

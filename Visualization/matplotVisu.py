@@ -12,27 +12,29 @@ import re
 
 #assigning global variables for local use
 
-lx_domain = prm.lx_domain
-ly_domain = prm.ly_domain
+x0F = prm.x0F
+y0F = prm.y0F
+lxDomain = prm.lxDomain
+lyDomain = prm.lyDomain
 dx = prm.dx
 dy = prm.dy
 
-lx_patch = prm.lx_patch
-ly_patch = prm.ly_patch
+lxFluid = prm.lxFluid
+lyFluid = prm.lyFluid
 
 h = prm.h
 alpha = prm.alpha
 
-c_ref = prm.c_ref
+cRef = prm.cRef
 
-m_0 = prm.m_0
+m0 = prm.m0
 k = prm.k
 
-rho_0 = prm.rho_0
+rho0 = prm.rho0
 
 dt = prm.dt
 Tf = prm.Tf
-N = prm.N
+Nt = prm.Nt
 nsave= prm.nsave
 
 gamma = prm.gamma
@@ -53,21 +55,21 @@ def parse_vtk(filepath):
     """
 
     with open(filepath, 'r') as f:
-        lines = f.readlines()               #  Lists lines in the file
+        lines = f.readlines()               #Lists lines in the file
     
     #initializing a dict/list of data where will be stored each specific data
     data = {'points': [], 'velocity': [], 'acceleration':[], 'density': [], 'pressure': []}
-    i = 0               # this counter will be used to go through lines
-    num_points = 0      # this counter will be used to go through 
+    i = 0                                   # this counter will be used to go through lines
+    num_points = 0                          # this counter will be used to go through 
 
     while i < len(lines):                       #go line by line adding +1 to the counter i
-        line = lines[i].strip()                  # eliminates white spaces at the beg and end of line
+        line = lines[i].strip()                 # eliminates white spaces at the beg and end of line
         
         if line.startswith("POINTS "):
             num_points = int(line.split()[1])    # takes the total number of points stored
-                                                 # Remember we wrote "POINTS numb" at the beg vtk file
+                                                 #Remember we wrote "POINTS numb" at the begin vtk file
             
-            for j in range(i + 1, i + 1 + num_points):   # from next line where "POINTS" was found to last points line
+            for j in range(i + 1, i + 1 + num_points):   #from next line where "POINTS" was found to last points line
                 point_line = lines[j].strip().split()   
 
                 if len(point_line) == 3:                 # Ensure valid 3D points (x,y,z)
@@ -170,7 +172,7 @@ def animate_vtk(folder_path):
         ax_velocity.clear()
 
         time_template = 'time = %.2fs'
-        time_text = ax[0,0].text(1.1*lx_domain,1.2*ly_domain,'') 
+        time_text = ax[0,0].text(1.1*lxDomain,1.2*lyDomain,'') 
         time_text.set_text(time_template%(0.))
         
         # Get the data for the current frame
@@ -180,7 +182,7 @@ def animate_vtk(folder_path):
         # Extract the data from the parsed vtk data
         pos = np.array(data['points'])
         dens = np.array(data['density'])
-        pres = np.array(data['pressure'])
+        press = np.array(data['pressure'])
         vel = np.array(data['velocity'])
         #accel = np.array(data['acceleration'])
     
@@ -193,8 +195,8 @@ def animate_vtk(folder_path):
         # Plot the density
         scat1 = ax[0,0].scatter(pos[:,0],pos[:,1],c=dens)
         ax[0,0].grid(True)
-        ax[0,0].set_xlim(0, lx_domain)
-        ax[0,0].set_ylim(0, lx_domain)
+        ax[0,0].set_xlim(0, lxDomain)
+        ax[0,0].set_ylim(0, lxDomain)
         ax[0,0].set_xlabel('X')
         ax[0,0].set_ylabel('Y')
 
@@ -203,10 +205,10 @@ def animate_vtk(folder_path):
             density_cb.set_label('Density')
 
         # Plot the pressure
-        scat2 = ax[0,1].scatter(pos[:,0],pos[:,1],c=pres)
+        scat2 = ax[0,1].scatter(pos[:,0],pos[:,1],c=press)
         ax[0,1].grid(True)
-        ax[0,1].set_xlim(0, lx_domain)
-        ax[0,1].set_ylim(0, ly_domain)
+        ax[0,1].set_xlim(0, lxDomain)
+        ax[0,1].set_ylim(0, lyDomain)
         ax[0,1].set_xlabel('X')
         ax[0,1].set_ylabel('Y')
 
@@ -217,16 +219,16 @@ def animate_vtk(folder_path):
         # Plot Velocity vectors
         quiv = ax[1,0].quiver(pos[:,0], pos[:,1], vel[:,0], vel[:,1], color=['r','b','g'], scale=21)
         ax[1,0].grid(True)
-        ax[1,0].set_xlim(0, lx_domain)
-        ax[1,0].set_ylim(0, ly_domain)
+        ax[1,0].set_xlim(0, lxDomain)
+        ax[1,0].set_ylim(0, lyDomain)
         ax[1,0].set_xlabel('X')
         ax[1,0].set_ylabel('Y')
 
         # Plot Velocity Magnitude
         scat3 = ax[1,1].scatter(pos[:,0], pos[:,1], c=vel_magnitude)
         ax[1,1].grid(True)
-        ax[1,1].set_xlim(0, lx_domain)
-        ax[1,1].set_ylim(0, ly_domain)
+        ax[1,1].set_xlim(0, lxDomain)
+        ax[1,1].set_ylim(0, lyDomain)
         ax[1,1].set_xlabel('X')
         ax[1,1].set_ylabel('Y')
 

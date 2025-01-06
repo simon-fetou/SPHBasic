@@ -11,27 +11,29 @@ from boundaryConditions.boundaryConditions import boundary
 
 #assigning global variables for local use
 
-lx_domain = prm.lx_domain
-ly_domain = prm.ly_domain
+lxDomain = prm.lxDomain
+lyDomain = prm.lyDomain
 dx = prm.dx
 dy = prm.dy
 
-lx_patch = prm.lx_patch
-ly_patch = prm.ly_patch
+x0F = prm.x0F
+y0F = prm.y0F
+lxFluid = prm.lxFluid
+lyFluid = prm.lyFluid
 
 h = prm.h
 alpha = prm.alpha
 
-c_ref = prm.c_ref
+cRef = prm.cRef
 
-m_0 = prm.m_0
+m0 = prm.m0
 k = prm.k
 
-rho_0 = prm.rho_0
+rho0 = prm.rho0
 
 dt = prm.dt
 Tf = prm.Tf
-N = prm.N
+Nt = prm.Nt
 nsave= prm.nsave
 
 gamma = prm.gamma
@@ -39,52 +41,70 @@ g = prm.g
 Npart = prm.Npart
 
 
-def Euler_step(n, pos, vel, rho, pres):
+def EulerTimeStep(n, pos, vel, rho, press):
+    """
+    Function solves the evolution of quantities from time n to n+1 with an Euler approach
 
-    drho_dt = np.zeros(Npart)
-    drhou_dt = np.zeros((Npart,2))
+    Arguments:
+    pos: [[x,y],...] positions of fluid particles (n)
+    vel: [[Vx,Vy],...] velocities of fluid particles (n)
+    rho: [rhoi,...] densities of fluid particles (n)
+    press: [pressi,...] pressures of fluid particles (n)
 
-    # Calcul des taux de variation de la densite drho_dt et de la QDM drhou_dt pour chaque particule i
+    Returns:
+    pos: [[x,y],...] positions of fluid particles (n+1)
+    vel: [[Vx,Vy],...] velocities of fluid particles (n+1)
+    rho: [rhoi,...] densities of fluid particles (n+1)
+    press: [pressi,...] pressures of fluid particles (n+1)
+    """
+
+    drhoDt = np.zeros(Npart)
+    drhoUDt = np.zeros((Npart,2))
+
+    # Density and momentum variation over time (drhoDt,drhoUDt) for each particle i (NS equations)
     for i in range(Npart):
         drho_dt_i = float(0)
         drhou_dt_i = np.array([0., 0.])
 
-        # on fait la sommation sur les voisins j
+        # Summing up over all neighbor particles j (i included)
         for j in range(Npart):
 
-            r_ij =pos[i]-pos[j] # vecteur position entre i et j            #r_ij=xi-xj
-            d_ij = length(r_ij) # distance entre i et j
+            r_ij =pos[i]-pos[j]                 # position vector between i and j        
+            d_ij = length(r_ij)                 # distance between i et j
 
-            if d_ij<=2*h: # test si la particule est dans le support compact 2h  (rij<=2h)
+            if d_ij<=2*h: # ensuring j is within the compact bounds 2h (rij<=2h kernel formulation)
+                          # Helps limit computing cost
 
-                assert (rho[j] != 0)  # test pour vérifier que rho_j n'est pas nul
+                assert (rho[j] != 0)            # rho_j should never be null (divisions)
 
                 # Pressure : Tait equation
-                pres[i] = k*((rho[i]/rho_0)**(gamma)-1)
-                pres[j] = k*((rho[j]/rho_0)**(gamma)-1)
+                press[i] = k*((rho[i]/rho0)**(gamma)-1)
+                press[j] = k*((rho[j]/rho0)**(gamma)-1)
 
-                # Equation d'Euler
-                # taux de variation de la densite
-                drho_dt_i += rho[i]*(vel[i]-vel[j]).dot(gradW(r_ij,h)*m_0/rho[j])
+                # Euler Equation
+                    # density variation
+                drho_dt_i += rho[i]*(vel[i]-vel[j]).dot(gradW(r_ij,h)*m0/rho[j])
 
-                # Calcul du terme de viscosite artificielle
+                    # Artificial viscosity
                 vij_rij =(vel[i]-vel[j]).dot(r_ij)/(d_ij**2) if (d_ij!=0) else 0 
                 PIij = 0
+
                 if vij_rij<0:
-                    PIij =-alpha*h*c_ref*((rho[i]+rho[j])/2)*vij_rij
-                # taux de variation de la QDM
-                drhou_dt_i +=-(pres[i]+pres[j]+PIij)*(gradW(r_ij,h)*dx**2)#+rho[i]*g
+                    PIij =-alpha*h*cRef*((rho[i]+rho[j])/2)*vij_rij
 
-        drho_dt[i] = drho_dt_i
-        drhou_dt[i] = drhou_dt_i
+                    # Momentum variation
+                drhou_dt_i +=-(press[i]+press[j]+PIij)*(gradW(r_ij,h)*dx**2)#+rho[i]*g
 
-    # Mise à jour de la densité, de la vitesse et de la position pour chaque particule i
+        drhoDt[i] = drho_dt_i
+        drhoUDt[i] = drhou_dt_i
+
+    # Updating quantities
     for i in range(Npart):
-        rho[i] += drho_dt[i]*dt
-        vel[i] += (drhou_dt[i]+g)*dt
+        rho[i] += drhoDt[i]*dt
+        vel[i] += (drhoUDt[i]+g)*dt
         pos[i] += vel[i]*dt
 
-        # Imposition des conditions aux limites (cf fonction plus bas)
+        # Enforcing boundary conditions
         boundary(pos[i],vel[i])
 
-    return pos, vel, rho, pres
+    return pos, vel, rho, press

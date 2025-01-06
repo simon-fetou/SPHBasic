@@ -8,27 +8,27 @@ import parameters as prm
 
 #assigning global variables for local use
 
-lx_domain = prm.lx_domain
-ly_domain = prm.ly_domain
+lxDomain = prm.lxDomain
+lyDomain = prm.lyDomain
 dx = prm.dx
 dy = prm.dy
 
-lx_patch = prm.lx_patch
-ly_patch = prm.ly_patch
+lxFluid = prm.lxFluid
+lyFluid = prm.lyFluid
 
 h = prm.h
 alpha = prm.alpha
 
-c_ref = prm.c_ref
+cRef = prm.cRef
 
-m_0 = prm.m_0
+m0 = prm.m0
 k = prm.k
 
-rho_0 = prm.rho_0
+rho0 = prm.rho0
 
 dt = prm.dt
 Tf = prm.Tf
-N = prm.N
+Nt = prm.Nt
 nsave= prm.nsave
 
 gamma = prm.gamma
@@ -38,10 +38,10 @@ Npart = prm.Npart
 
 pos = np.zeros((Npart, 2))
 vel = np.zeros((Npart, 2))
-drho_dt = np.zeros(Npart)
-drhou_dt = np.zeros((Npart,2))
+drhoDt = np.zeros(Npart)
+drhoUDt = np.zeros((Npart,2))
 rho = np.zeros(Npart)
-pres = np.zeros(Npart)
+press = np.zeros(Npart)
 
 
 def init_plot():
@@ -50,15 +50,15 @@ def init_plot():
     plt.set_cmap('jet')
     ax = fig.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
 
-    ax[0,0].set_xlim(0, lx_domain)
-    ax[0,0].set_ylim(0, ly_domain)
+    ax[0,0].set_xlim(0, lxDomain)
+    ax[0,0].set_ylim(0, lyDomain)
     ax[0,0].set_xlabel('x')
     ax[0,0].set_ylabel('y')
     time_template = 'time = %.2fs'
-    time_text = ax[0,0].text(0.5*lx_domain,1.1*ly_domain,'') 
+    time_text = ax[0,0].text(0.5*lxDomain,1.1*lyDomain,'') 
     time_text.set_text(time_template%(0.))
     
-    scat1 = ax[0,0].scatter(pos[:,0],pos[:,1],c=pres)
+    scat1 = ax[0,0].scatter(pos[:,0],pos[:,1],c=press)
     div = make_axes_locatable(ax[0,0])
     cax1 = div.append_axes('right', '5%', '5%')
     cax1 = fig.colorbar(scat1, ax=ax[0, 0], label='Pressure')
@@ -82,8 +82,8 @@ def init_plot():
 def update_plot(pos, pres, rho, vel, fig, cax1, cax2, cax3, scat1, scat2, scat3, quiv):
 
     scat1.set_offsets(pos)
-    scat1.set_array(pres)
-    scat1.set_clim(vmin=np.min(pres), vmax=np.max(pres)) 
+    scat1.set_array(press)
+    scat1.set_clim(vmin=np.min(press), vmax=np.max(press)) 
     #cax1.cla() # clear current axes (colormap)
     #fig.colorbar(scat1, cax=cax1,label='Pressure') # set new colormap with new values
     #scat1.autoscale() # Autoscale the scalar limits on the norm instance using the current array
@@ -100,11 +100,11 @@ def update_plot(pos, pres, rho, vel, fig, cax1, cax2, cax3, scat1, scat2, scat3,
     #quiv.set_array(vel_mag)
     #quiv.autoscale() # Autoscalenorm = matplotlib.colors.Normalize()
 
-    vel_mag = np.sqrt(vel[:,0]**2+vel[:,1]**2)
+    velMag = np.sqrt(vel[:,0]**2+vel[:,1]**2)
 
     scat3.set_offsets(pos)
-    scat3.set_array(vel_mag)
-    scat3.set_clim(vmin=np.min(vel_mag), vmax=np.max(vel_mag))
+    scat3.set_array(velMag)
+    scat3.set_clim(vmin=np.min(velMag), vmax=np.max(velMag))
     #cax3.cla() # clear current axes (colormap)
     #fig.colorbar(scat3, cax=cax3,label='vel_mag') # set new colormap with new values
     #scat3.autoscale() # Autoscale the scalar limits on the norm instance using the current array
