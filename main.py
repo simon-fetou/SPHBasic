@@ -1,15 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import animation
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from random import random as rand
 import time
 import parameters as prm
-from boundaryConditions.boundaryConditions import boundary
 from initConditions.initConditions import init_part
-from equations.kernel import length, gradW
 from equations.timeStep import EulerTimeStep
-from Visualization.visu import init_plot, update_plot
 from dataExtraction.extract import write_vtk
 
 #assigning global variables for local use
@@ -47,7 +40,8 @@ Npart = prm.Npart
 
 
 def main():
-    # Initialiation des tableaux
+    
+    # Fields Initialiation
     pos = np.zeros((Npart, 2))
     vel = np.zeros((Npart, 2))
     accel = np.zeros((Npart, 2))
@@ -56,18 +50,17 @@ def main():
     rho = np.zeros(Npart)
     press = np.zeros(Npart)
 
-    # Initialisation des particules
+    # Fluid patch Initialisation
     pos, rho, pres = init_part(Mx,My)
-    # Question : est-ce que ipart est egal à Npart????
 
     #Saving the initial time vtk file
     write_vtk(f"champs{0}.vtk", pos, vel, accel, rho, press)
 
-    # Boucle temporelle (avec affichage des resultats toutes les nsave iterations
+    # Time step computation (With extraction of data every nsave iterations)
     start = time.time()
     for n in range(1,Nt):
 
-        pos,vel,rho,pres = EulerTimeStep(n,pos,vel,rho,press)
+        pos,vel,rho,press = EulerTimeStep(pos,vel,rho,press)
 
         if n%nsave==0:
 
