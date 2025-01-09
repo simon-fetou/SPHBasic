@@ -7,7 +7,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # Now you can import parameters as prm
 import parameters as prm
-import time
 import re
 
 #assigning global variables for local use
@@ -86,7 +85,7 @@ def parse_vtk(filepath):
             for j in range(i + 1, i + 1 + num_points):
                 velocity_line = lines[j].strip().split()
 
-                if len(velocity_line) == 3:  # Ensure valid 3D vectors (Vx,Vy,Vz)
+                if len(velocity_line) == 3:       # Ensure valid 3D vectors (Vx,Vy,Vz)
                     try:
                         data['velocity'].append([float(v) for v in velocity_line])
                     except ValueError:
@@ -187,7 +186,7 @@ def animate_vtk(folder_path):
         #accel = np.array(data['acceleration'])
     
         # Compute the velocity magnitude
-        vel_magnitude = np.linalg.norm(vel, axis=1)
+        vel_magnitude =np.linalg.norm(vel, axis=1)
 
         #compute the acceleration magnitude
         #accel_magnitude = np.linalg.norm(accel, axis=1)

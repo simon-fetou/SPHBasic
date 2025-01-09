@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import animation
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from random import random as rand
-import time
 import parameters as prm
 
 #assigning global variables for local use
