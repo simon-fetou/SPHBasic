@@ -1,10 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import animation
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from random import random as rand
 #from numba import jit
-import time
 import parameters as prm
 from equations.kernel import length,gradW
 from boundaryConditions.boundaryConditions import boundary
@@ -41,7 +36,7 @@ g = prm.g
 Npart = prm.Npart
 
 
-def EulerTimeStep(n, pos, vel, rho, press):
+def EulerTimeStep(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarray):
     """
     Function solves the evolution of quantities from time n to n+1 with an Euler approach
 
