@@ -6,6 +6,8 @@ from boundaryConditions.boundaryConditions import boundary
 
 #assigning global variables for local use
 
+x0D = prm.x0D
+y0D = prm.y0D
 lxDomain = prm.lxDomain
 lyDomain = prm.lyDomain
 dx = prm.dx
@@ -100,6 +102,6 @@ def EulerTimeStep(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarr
         pos[i] += vel[i]*dt
 
         # Enforcing boundary conditions
-        boundary(pos[i],vel[i])
+        boundary(pos[i],vel[i],rho[i])
 
     return pos, vel, rho, press
