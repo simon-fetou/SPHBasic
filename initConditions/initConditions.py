@@ -1,9 +1,12 @@
 import numpy as np
 import parameters as prm
 from otherFunctions.NewtonRaphson import newtonRaphson_poly
+from boundaryConditions.boundaryConditions import boundary
 
 #assigning global variables for local use
 
+x0D = prm.x0D
+y0D = prm.y0D
 lxDomain = prm.lxDomain
 lyDomain = prm.lyDomain
 dx = prm.dx
@@ -50,6 +53,7 @@ def init_part(Mx,My):
     """
 
     pos = np.zeros((Npart, 2))
+    vel = np.zeros((Npart, 2))
     rho = np.zeros(Npart)
     press = np.zeros(Npart)
     ipart=0
@@ -74,6 +78,10 @@ def init_part(Mx,My):
 
             press[ipart] = press0 + rho[ipart]*np.abs(g[1])*(lyFluid-pos[ipart][1])
 
+            #applying BC to initialized particles
+            boundary(pos[ipart],vel[ipart],rho[ipart])
+
             ipart+=1
+            
 
     return pos, rho, press
