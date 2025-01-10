@@ -1,10 +1,13 @@
 import numpy as np
+import math
 from random import random as rand
 import parameters as prm
 from equations.kernel import length,gradW
 
 #assigning global variables for local use
 
+x0D = prm.x0D
+y0D = prm.y0D
 lxDomain = prm.lxDomain
 lyDomain = prm.lyDomain
 dx = prm.dx
@@ -34,7 +37,7 @@ gamma = prm.gamma
 g = prm.g
 Npart = prm.Npart
 
-
+"""
 def boundary(pos,vel):
 
     '''
@@ -84,7 +87,7 @@ def boundary(pos,vel):
         vel[1] *= -0.5                      # Reorientate it's vel and dampen it by 50%
 
     return pos,vel
-
+"""
 """
 def reflect_particle(pos:np.ndarray, wall_position:float, axis:float):
     '''
@@ -177,3 +180,57 @@ def boundary(pos, vel, rho, press):
     return Np_ghost, all_pos, all_vel, all_rho, all_press
 
 """
+
+def boundary(pos,vel,rho):
+
+    '''
+    Function sets the boundary conditions and particles behaviour (Dummy formulation to start)
+
+    arguments:
+    pos: [x,y] positions of fluid particles
+    vel: [velx,vely] velocity of fluid particles
+
+    Returns:
+    pos:[x,y] updated positions of fluid particles 
+    vel: [velx,vely] updated velocity of fluid particles
+    '''
+
+    limit=0.5*h                  # closest limit to boundaries
+
+    #Left wall
+    if pos[0] - limit < 0:                  # if x+Little gets out of the domain
+        
+        leftWall = [x0D , pos[1]]      # takes the vector between particle and wall
+        toi = np.linalg.norm(pos-leftWall)
+        rho = rho * (1-0.5*math.erfc(toi))
+
+        vel[0] *= -0.5                      # Reorientate it's vel and dampen it by 50%
+
+    #Right wall
+    elif pos[0] + limit >= lxDomain:        # if x-Little gets out of the domain
+
+        rightWall = [lxDomain , pos[1]]      # takes the vector between particle and wall
+        toi = np.linalg.norm(pos-rightWall)
+        rho = rho * (1-0.5*math.erfc(toi))
+
+        vel[0] *= -0.5                      # Reorientate it's vel and dampen it by 50%
+    
+    #Bottom wall
+    if pos[1] < limit:                      # if y+Little gets out of the domain
+
+        bottomWall = [pos[0] , y0D]      # takes the vector between particle and wall
+        toi = np.linalg.norm(pos-bottomWall)
+        rho = rho * (1-0.5*math.erfc(toi))
+
+        vel[1] *=-0.5                       # Reorientate it's vel and dampen it by 50%
+    
+    #Top wall 
+    elif pos[1] + limit >= lyDomain:        # if y-Little gets out of the domain
+
+        topWall = [pos[0] , lyDomain]      # takes the vector between particle and wall
+        toi = np.linalg.norm(pos-topWall)
+        rho = rho * (1-0.5*math.erfc(toi))
+
+        vel[1] *= -0.5                      # Reorientate it's vel and dampen it by 50%
+
+    return pos,vel,rho
