@@ -15,7 +15,7 @@ y0F = 0.                                    # from bottom of recepient (y dir)
 
 #-----------------------------Kernel parameters---------------------------
 h = 0.1                                     # Smoothing length
-h_sur_dx = 2                                # number of fluid particles within h proximity of a particle
+h_sur_dx = 1.4                              # number of fluid particles within h proximity of a particle
 
 #-------------------------------Fluid properties----------------------------
 rho0 = 1.                                   # reference density
