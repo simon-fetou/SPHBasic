@@ -181,7 +181,7 @@ def boundary(pos, vel, rho, press):
 
 """
 
-def boundary(pos,vel,rho):
+def boundary(pos,vel,rho,press):
 
     '''
     Function sets the boundary conditions and particles behaviour (Dummy formulation to start)
@@ -198,39 +198,47 @@ def boundary(pos,vel,rho):
     limit=0.5*h                  # closest limit to boundaries
 
     #Left wall
-    if pos[0] - limit < 0:                  # if x+Little gets out of the domain
+    if pos[0] - limit < 0:                     # if x+Little gets out of the domain
         
-        leftWall = [x0D , pos[1]]      # takes the vector between particle and wall
-        toi = np.linalg.norm(pos-leftWall)
-        rho = rho * (1-0.5*math.erfc(toi))
+        leftWall = [x0D , pos[1]]              # takes the vector between particle and wall
+        doi = np.linalg.norm(pos-leftWall)     # distance from the wall
+        toi = doi/h
 
-        vel[0] *= -0.5                      # Reorientate it's vel and dampen it by 50%
+        rho = rho * (1-0.5*math.erfc(toi))
+        press = k*((rho/rho0)**(gamma)-1)
+        vel[0] *= doi/limit                    # Dampen it's vel more and more till 0 on the B (non ph)
 
     #Right wall
-    elif pos[0] + limit >= lxDomain:        # if x-Little gets out of the domain
+    elif pos[0] + limit >= lxDomain:           # if x-Little gets out of the domain
 
         rightWall = [lxDomain , pos[1]]      # takes the vector between particle and wall
-        toi = np.linalg.norm(pos-rightWall)
-        rho = rho * (1-0.5*math.erfc(toi))
+        doi = np.linalg.norm(pos-rightWall)
+        toi = doi/h
 
-        vel[0] *= -0.5                      # Reorientate it's vel and dampen it by 50%
+        rho = rho * (1-0.5*math.erfc(toi))
+        press = k*((rho/rho0)**(gamma)-1)
+        vel[0] *= doi/limit                    # Dampen it's vel more and more till 0 on the B (non ph)
     
     #Bottom wall
     if pos[1] < limit:                      # if y+Little gets out of the domain
 
         bottomWall = [pos[0] , y0D]      # takes the vector between particle and wall
-        toi = np.linalg.norm(pos-bottomWall)
-        rho = rho * (1-0.5*math.erfc(toi))
+        doi = np.linalg.norm(pos-bottomWall)
+        toi = doi/h
 
-        vel[1] *=-0.5                       # Reorientate it's vel and dampen it by 50%
+        rho = rho * (1-0.5*math.erfc(toi))
+        press = k*((rho/rho0)**(gamma)-1)
+        vel[1] *= doi/limit                    # Dampen it's vel more and more till 0 on the B (non ph)
     
     #Top wall 
-    elif pos[1] + limit >= lyDomain:        # if y-Little gets out of the domain
+    elif pos[1] + limit >= lyDomain:           # if y-Little gets out of the domain
 
-        topWall = [pos[0] , lyDomain]      # takes the vector between particle and wall
-        toi = np.linalg.norm(pos-topWall)
+        topWall = [pos[0] , lyDomain]          # takes the vector between particle and wall
+        doi = np.linalg.norm(pos-topWall)      # distance from the wall
+        toi = np.linalg.norm(pos-topWall)/h
+
         rho = rho * (1-0.5*math.erfc(toi))
+        press = k*((rho/rho0)**(gamma)-1)
+        vel[1] *= doi/limit                    # Dampen it's vel more and more till 0 on the B (non ph)
 
-        vel[1] *= -0.5                      # Reorientate it's vel and dampen it by 50%
-
-    return pos,vel,rho
+    return pos,vel,rho,press
