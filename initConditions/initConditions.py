@@ -79,7 +79,7 @@ def init_part(Mx,My):
             press[ipart] = press0 + rho[ipart]*np.abs(g[1])*(lyFluid-pos[ipart][1])
 
             #applying BC to initialized particles
-            boundary(pos[ipart],vel[ipart],rho[ipart])
+            boundary(pos[ipart],vel[ipart],rho[ipart],press[ipart])
 
             ipart+=1
             
