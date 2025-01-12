@@ -3,8 +3,7 @@ import numpy as np
 
 def write_vtk(filename:str, positions:np.ndarray, velocities:np.ndarray,
                accelerations:np.ndarray, densities:np.ndarray, pressures:np.ndarray):
-#def write_vtk(filename:str, positions:np.ndarray, velocities:np.ndarray
-#              , densities:np.ndarray, pressures:np.ndarray):
+    
     """
     Function Writes SPH particle data to a .vtk file.
     
