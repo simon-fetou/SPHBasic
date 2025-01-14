@@ -11,13 +11,15 @@ import re
 
 #assigning global variables for local use
 
-x0F = prm.x0F
-y0F = prm.y0F
+x0D = prm.x0D
+y0D = prm.y0D
 lxDomain = prm.lxDomain
 lyDomain = prm.lyDomain
 dx = prm.dx
 dy = prm.dy
 
+x0F = prm.x0F
+y0F = prm.y0F
 lxFluid = prm.lxFluid
 lyFluid = prm.lyFluid
 
@@ -144,7 +146,7 @@ def animate_vtk(folder_path):
 
     # Create subplots: One for density, one for pressure, and one for velocity magnitude
     fig = plt.figure(figsize=(12,8))
-    plt.set_cmap('jet')
+    plt.set_cmap('Blues')
     ax = fig.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
     
     # Extract individual axes from the array
@@ -152,6 +154,23 @@ def animate_vtk(folder_path):
     ax_pressure = ax[0, 1]
     ax_velocityQuiver = ax[1, 0]
     ax_velocity = ax[1, 1]
+
+    # Initializing Global color limits
+    densLimits = [float('inf'), -float('inf')]
+    pressLimits = [float('inf'), -float('inf')]
+    velLimits = [0, 0]
+
+    # First pass to determine the global min/max values for each vtk
+    for vtk_file in vtk_files:
+        filepath = os.path.join(folder_path, vtk_file)
+        data = parse_vtk(filepath)
+        densLimits[0] = min(densLimits[0], min(data['density']))
+        densLimits[1] = max(densLimits[1], max(data['density']))
+        pressLimits[0] = min(pressLimits[0], min(data['pressure']))
+        pressLimits[1] = max(pressLimits[1], max(data['pressure']))
+        velMagnitude = np.linalg.norm(data['velocity'], axis=1)
+        velLimits[0] = min(velLimits[0], min(velMagnitude))
+        velLimits[1] = max(velLimits[1], max(velMagnitude))
 
     # Create colorbars for each plot
     density_cb = None
@@ -186,16 +205,16 @@ def animate_vtk(folder_path):
         #accel = np.array(data['acceleration'])
     
         # Compute the velocity magnitude
-        vel_magnitude =np.linalg.norm(vel, axis=1)
+        velMagnitude =np.linalg.norm(vel, axis=1)
 
         #compute the acceleration magnitude
         #accel_magnitude = np.linalg.norm(accel, axis=1)
         
         # Plot the density
-        scat1 = ax[0,0].scatter(pos[:,0],pos[:,1],c=dens)
+        scat1 = ax[0,0].scatter(pos[:,0],pos[:,1],c=dens,vmin=densLimits[0],vmax=densLimits[1],s=10)
         ax[0,0].grid(True)
-        ax[0,0].set_xlim(0, lxDomain)
-        ax[0,0].set_ylim(0, lxDomain)
+        ax[0,0].set_xlim(x0D, lxDomain)
+        ax[0,0].set_ylim(y0D, lxDomain)
         ax[0,0].set_xlabel('X')
         ax[0,0].set_ylabel('Y')
 
@@ -204,10 +223,10 @@ def animate_vtk(folder_path):
             density_cb.set_label('Density')
 
         # Plot the pressure
-        scat2 = ax[0,1].scatter(pos[:,0],pos[:,1],c=press)
+        scat2 = ax[0,1].scatter(pos[:,0],pos[:,1],c=press, vmin=pressLimits[0], vmax=pressLimits[1])
         ax[0,1].grid(True)
-        ax[0,1].set_xlim(0, lxDomain)
-        ax[0,1].set_ylim(0, lyDomain)
+        ax[0,1].set_xlim(x0D, lxDomain)
+        ax[0,1].set_ylim(y0D, lyDomain)
         ax[0,1].set_xlabel('X')
         ax[0,1].set_ylabel('Y')
 
@@ -218,16 +237,16 @@ def animate_vtk(folder_path):
         # Plot Velocity vectors
         quiv = ax[1,0].quiver(pos[:,0], pos[:,1], vel[:,0], vel[:,1], color=['r','b','g'], scale=21)
         ax[1,0].grid(True)
-        ax[1,0].set_xlim(0, lxDomain)
-        ax[1,0].set_ylim(0, lyDomain)
+        ax[1,0].set_xlim(x0D, lxDomain)
+        ax[1,0].set_ylim(y0D, lyDomain)
         ax[1,0].set_xlabel('X')
         ax[1,0].set_ylabel('Y')
 
         # Plot Velocity Magnitude
-        scat3 = ax[1,1].scatter(pos[:,0], pos[:,1], c=vel_magnitude)
+        scat3 = ax[1,1].scatter(pos[:,0], pos[:,1],c=velMagnitude,vmin=velLimits[0],vmax=velLimits[1],s=10)
         ax[1,1].grid(True)
-        ax[1,1].set_xlim(0, lxDomain)
-        ax[1,1].set_ylim(0, lyDomain)
+        ax[1,1].set_xlim(x0D, lxDomain)
+        ax[1,1].set_ylim(y0D, lyDomain)
         ax[1,1].set_xlabel('X')
         ax[1,1].set_ylabel('Y')
 

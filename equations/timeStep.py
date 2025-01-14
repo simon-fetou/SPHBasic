@@ -100,6 +100,6 @@ def EulerTimeStep(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarr
         pos[i] += vel[i]*dt
 
         # Enforcing boundary conditions
-        boundary(pos[i],vel[i])
+        boundary(pos[i],vel[i],rho[i],press[i])
 
     return pos, vel, rho, press
