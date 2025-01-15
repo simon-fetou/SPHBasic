@@ -27,6 +27,7 @@ m0 = prm.m0
 k = prm.k
 
 rho0 = prm.rho0
+press0 = prm.press0
 
 dt = prm.dt
 Tf = prm.Tf
@@ -55,14 +56,14 @@ def boundary(pos,vel,rho,press):
     limit=0.5*h                  # closest limit to boundaries
 
     #Left wall
-    if pos[0] - limit < 0:                     # if x+Little gets out of the domain
+    if pos[0] - limit < x0D:                     # if x+Little gets out of the domain
         
         leftWall = [x0D , pos[1]]              # takes the vector between particle and wall
         doi = np.linalg.norm(pos-leftWall)     # distance from the wall
         toi = doi/h
 
         rho = rho * (1-0.5*math.erfc(toi))
-        press = k*((rho/rho0)**(gamma)-1)
+        press = press0 + k*((rho/rho0)**(gamma)-1)
         vel[0] *= -0.5                      # Dampen it's vel more and more till 0 on the B (non ph)
 
     #Right wall
@@ -73,18 +74,18 @@ def boundary(pos,vel,rho,press):
         toi = doi/h
 
         rho = rho * (1-0.5*math.erfc(toi))
-        press = k*((rho/rho0)**(gamma)-1)
+        press = press0 + k*((rho/rho0)**(gamma)-1)
         vel[0] *= -0.5                      # Dampen it's vel more and more till 0 on the B (non ph)
     
     #Bottom wall
-    if pos[1] < limit:                      # if y+Little gets out of the domain
+    if pos[1] - limit < y0D:                      # if y+Little gets out of the domain
 
         bottomWall = [pos[0] , y0D]      # takes the vector between particle and wall
         doi = np.linalg.norm(pos-bottomWall)
         toi = doi/h
 
         rho = rho * (1-0.5*math.erfc(toi))
-        press = k*((rho/rho0)**(gamma)-1)
+        press = press0 + k*((rho/rho0)**(gamma)-1)
         vel[1] *= -0.5                    # Dampen it's vel more and more till 0 on the B (non ph)
     
     #Top wall 
@@ -92,10 +93,10 @@ def boundary(pos,vel,rho,press):
 
         topWall = [pos[0] , lyDomain]          # takes the vector between particle and wall
         doi = np.linalg.norm(pos-topWall)      # distance from the wall
-        toi = np.linalg.norm(pos-topWall)/h
+        toi = doi/h
 
         rho = rho * (1-0.5*math.erfc(toi))
-        press = k*((rho/rho0)**(gamma)-1)
+        press = press0 + k*((rho/rho0)**(gamma)-1)
         vel[1] *= -0.5                    # Dampen it's vel more and more till 0 on the B (non ph)
 
     return pos,vel,rho,press
