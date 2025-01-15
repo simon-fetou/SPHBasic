@@ -25,6 +25,7 @@ m0 = prm.m0
 k = prm.k
 
 rho0 = prm.rho0
+press0 = prm.press0
 
 dt = prm.dt
 Tf = prm.Tf
@@ -73,8 +74,8 @@ def EulerTimeStep(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarr
                 assert (rho[j] != 0)            # rho_j should never be null (divisions)
 
                 # Pressure : Tait equation
-                press[i] = k*((rho[i]/rho0)**(gamma)-1)
-                press[j] = k*((rho[j]/rho0)**(gamma)-1)
+                press[i] = press0 + k*((rho[i]/rho0)**(gamma)-1)
+                press[j] = press0 + k*((rho[j]/rho0)**(gamma)-1)
 
                 # Euler Equation
                     # density variation
