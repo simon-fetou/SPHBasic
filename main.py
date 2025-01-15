@@ -51,7 +51,7 @@ def main():
     press = np.zeros(Npart)
 
     # Fluid patch Initialisation
-    pos, rho, pres = init_part(Mx,My)
+    pos, rho, press = init_part(Mx,My)
 
     #Saving the initial time vtk file
     write_vtk(f"champs{0}.vtk", pos, vel, accel, rho, press)
