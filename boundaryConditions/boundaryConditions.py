@@ -86,14 +86,7 @@ def boundary(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarray):
     limit = 0.5*h
     #Left wall
     if pos[0] - limit < x0D:                                # if x-Little gets out of the domain
-
-        #Updating density, and pressure of the particle at the boundary
-        leftWall = [x0D , pos[1]]                           # takes the LeftWall position
-        doi = np.linalg.norm(pos-leftWall)                  # distance from the wall
-        toi = doi/h
-        rho = rho * (1-0.5*math.erfc(toi))
-        press = press0 + k*((rho/rho0)**(gamma)-1)
-
+        
         # creating a ghost particle to update particles velocities on the boundaries later
         reflected_pos = reflect_particle(pos, x0D, 0)
         ghost_pos =np.vstack([ghost_pos, reflected_pos])
@@ -104,13 +97,6 @@ def boundary(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarray):
     #Right wall
     elif pos[0] + limit >= lxDomain:           # if x+Little gets out of the domain
 
-        #Updating density, and pressure of the particle at the boundary
-        rightWall = [lxDomain , pos[1]]                           # takes the RightWall position
-        doi = np.linalg.norm(pos-rightWall)
-        toi = doi/h
-        rho = rho * (1-0.5*math.erfc(toi))
-        press = press0 + k*((rho/rho0)**(gamma)-1)
-
         # creating ghost a particle to update particles velocities on the boundaries later
         reflected_pos = reflect_particle(pos, lxDomain, 0)
         ghost_pos =np.vstack([ghost_pos, reflected_pos])
@@ -120,14 +106,7 @@ def boundary(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarray):
 
     #Bottom wall
     if pos[1] - limit < y0D:                      # if y-Little gets out of the domain
-
-        #Updating density, and pressure of the particle at the boundary
-        bottomWall = [pos[0] , y0D]                           # takes the BottomWall position
-        doi = np.linalg.norm(pos-bottomWall)
-        toi = doi/h
-        rho = rho * (1-0.5*math.erfc(toi))
-        press = press0 + k*((rho/rho0)**(gamma)-1)
-
+        
         # creating a ghost particle to update particles velocities on the boundaries later
         reflected_pos = reflect_particle(pos, y0D, 1)
         ghost_pos =np.vstack([ghost_pos, reflected_pos])
@@ -138,13 +117,6 @@ def boundary(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarray):
     #Top wall 
     elif pos[1] + limit >= lyDomain:           # if y+Little gets out of the domain
         
-        #Updating density, and pressure of the particle at the boundary
-        topWall = [pos[0] , lyDomain]                           # takes the RightWall position
-        doi = np.linalg.norm(pos-topWall)                       # distance from the wall
-        toi = doi/h
-        rho = rho * (1-0.5*math.erfc(toi))
-        press = press0 + k*((rho/rho0)**(gamma)-1)
-
         # creating a ghost particle to update particles velocities on the boundaries later
         reflected_pos = reflect_particle(pos, lyDomain, 1)
         ghost_pos =np.vstack([ghost_pos, reflected_pos])
@@ -155,7 +127,10 @@ def boundary(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarray):
     # Get the number of ghost particles Np_ghost
     Np_ghost = len(ghost_pos)
 
-    velGh = 0.0
+    velGh = np.array([0.,0.])
+    rhoGh = float(0.)
+    pressGh = float(0.)
+
     for j in range(Np_ghost):
         r_ij = pos-ghost_pos[j]            # position vector between i and the ghost j 
         d_ij = length(r_ij)                # distance between i and ghost j
@@ -166,9 +141,13 @@ def boundary(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarray):
             assert (ghost_rho[j] != 0)            # rho_j should never be null (divisions)
 
             velGh += ghost_vel[j]*W(r_ij,h)*m0/ghost_rho[j]
+            rhoGh += ghost_rho[j]*W(r_ij,h)*m0/ghost_rho[j]
+            pressGh += ghost_press[j]*W(r_ij,h)*m0/ghost_rho[j]
 
 
     vel += velGh
+    rho += rhoGh
+    press += pressGh
 
 
     return pos,vel,rho,press
