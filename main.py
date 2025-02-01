@@ -3,7 +3,9 @@ import time
 import parameters as prm
 from initConditions.initConditions import init_part
 from equations.timeStep import EulerTimeStep
-from dataExtraction.extract import write_vtk
+from boundaryConditions.boundaryConditions import boundary
+from dataExtraction.extract import write_vtk, write_vtk_with_ghost
+
 
 #assigning global variables for local use
 
@@ -52,21 +54,30 @@ def main():
 
     # Fluid patch Initialisation
     pos, rho, press = init_part(Mx,My)
+    pos,ghost_pos,vel,rho,press = boundary(pos,vel,rho,press)
 
     #Saving the initial time vtk file
     write_vtk(f"champs{0}.vtk", pos, vel, accel, rho, press)
+
+    #Saving the initial time ghost vtk file
+    write_vtk_with_ghost(f"ghost{0}.vtk", pos, ghost_pos)
 
     # Time step computation (With extraction of data every nsave iterations)
     start = time.time()
     for n in range(1,Nt):
 
+        pos,ghost_pos,vel,rho,press = boundary(pos,vel,rho,press)
         pos,vel,rho,press = EulerTimeStep(pos,vel,rho,press)
+        pos,ghost_pos,vel,rho,press = boundary(pos,vel,rho,press)
 
         if n%nsave==0:
 
+            #Saving the ghost vtk file
+            write_vtk_with_ghost(f"ghost{n}.vtk", pos, ghost_pos)
+
             #Saving the vtk file
             write_vtk(f"champs{n}.vtk", pos, vel, accel, rho, press)
-
+        
             end = time.time()
             print('iteration {} time {:.5f} tpsCPU {:.2f}'.format(n,n*dt,(end-start)) )
             start = time.time()
