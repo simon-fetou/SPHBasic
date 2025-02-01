@@ -8,13 +8,13 @@ x0D = 0.
 y0D = 0.
 lxDomain = 2.
 lyDomain = 2.
+x0F = 0.                                    #centering the fluid patch (x dir)
+y0F = 0.                                    # from bottom of container (y dir)
 lxFluid = lxDomain/2.
 lyFluid = 1.75
-x0F = 0.                                    #centering the fluid patch (x dir)
-y0F = 0.                                    # from bottom of recepient (y dir)
 
 #-----------------------------Kernel parameters---------------------------
-h = 0.05                                     # Smoothing length
+h = 0.1                                     # Smoothing length
 h_sur_dx = 1.4                              # number of fluid particles within h proximity of a particle
 
 #-------------------------------Fluid properties----------------------------
@@ -38,4 +38,4 @@ m0 = rho0*(dx*dy)                           #mass of a fluid particle
 Tf = 2
 dt = h/(8*cRef)
 Nt = int(Tf/dt)
-nsave = 10                                  # saving interval
+nsave = 20                                  # saving interval
