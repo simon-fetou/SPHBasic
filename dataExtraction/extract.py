@@ -63,12 +63,49 @@ def write_vtk(filename:str, positions:np.ndarray, velocities:np.ndarray,
         for pressure in pressures:
             f.write(f"{pressure}\n")
         
-'''
-# Example usage
-points = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (1, 1, 0), (0.5, 0.5, 0)]
-densities = [1.0, 0.9, 1.2, 1.1, 1.0]
-pressures = [1000.0, 950.0, 1200.0, 1100.0, 1050.0]
-velocities = [(0.1, 0.2, 0.0), (0.0, -0.1, 0.0), (0.3, 0.4, 0.0), (-0.2, 0.0, 0.0), (0.0, 0.1, 0.0)]
 
-write_vtk("sph_particles.vtk", points, densities, pressures, velocities)
-'''
+
+
+def write_vtk_with_ghost(filename, fluid_pos, ghost_pos):
+    """
+    Write fluid and ghost particle positions to a VTK file.
+
+    Parameters:
+    - filename: str, name of the VTK file to save.
+    - fluid_pos: np.ndarray of shape (N_fluid, 2), fluid particle positions.
+    - ghost_pos: np.ndarray of shape (N_ghost, 2), ghost particle positions.
+    """
+
+    # Ensure the output directory exists
+    os.makedirs('ghostVTK', exist_ok=True)
+    
+    # Full path to the file
+    filepath = os.path.join('ghostVTK', filename )
+    
+    with open(filepath, 'w') as f:
+        f.write("# vtk DataFile Version 3.0\n")
+        f.write("Fluid and Ghost Particles\n")
+        f.write("ASCII\n")
+        f.write("DATASET UNSTRUCTURED_GRID\n")
+        
+        # Combine all positions
+        all_positions = np.vstack((fluid_pos, ghost_pos))
+        num_particles = all_positions.shape[0]
+
+        # Write points
+        f.write(f"POINTS {num_particles} float\n")
+        for pos in all_positions:
+            f.write(f"{pos[0]} {pos[1]} 0.0\n")  # 2D positions (z=0)
+
+        # Write cell data (optional)
+        f.write("\nCELLS 0 0\n")
+        f.write("\nCELL_TYPES 0\n")
+
+        # Write point data to differentiate fluid and ghost particles
+        f.write("\nPOINT_DATA {}\n".format(num_particles))
+        f.write("SCALARS Particle_Type int 1\n")
+        f.write("LOOKUP_TABLE default\n")
+        f.write(" ".join(["0"] * len(fluid_pos)))  # 0 for fluid particles
+        f.write(" ")
+        f.write(" ".join(["1"] * len(ghost_pos)))  # 1 for ghost particles
+        f.write("\n")
