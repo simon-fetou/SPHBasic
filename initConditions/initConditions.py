@@ -50,7 +50,7 @@ def init_part(Mx,My):
     """
 
     pos = np.zeros((Npart, 2))
-    rho = np.zeros(Npart)
+    rho = np.ones(Npart)
     press = np.zeros(Npart)
     ipart=0
 
