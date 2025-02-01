@@ -1,4 +1,5 @@
 import numpy as np
+import time
 #from numba import jit
 import parameters as prm
 from equations.kernel import length,gradW
@@ -6,6 +7,8 @@ from boundaryConditions.boundaryConditions import boundary
 
 #assigning global variables for local use
 
+x0D = prm.x0D
+y0D = prm.y0D
 lxDomain = prm.lxDomain
 lyDomain = prm.lyDomain
 dx = prm.dx
@@ -57,6 +60,8 @@ def EulerTimeStep(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarr
     drhoDt = np.zeros(Npart)
     drhoUDt = np.zeros((Npart,2))
 
+    #boundary(pos,vel,rho,press)
+
     # Density and momentum variation over time (drhoDt,drhoUDt) for each particle i (NS equations)
     for i in range(Npart):
         drho_dt_i = float(0)
@@ -79,7 +84,7 @@ def EulerTimeStep(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarr
 
                 # Euler Equation
                     # density variation
-                drho_dt_i += rho[i]*(vel[i]-vel[j]).dot(gradW(r_ij,h)*m0/rho[j])
+                drho_dt_i += rho[i]*(vel[i]-vel[j]).dot(gradW(r_ij,h)*m0/rho[j]) if rho[j] != 0 else 0
 
                     # Artificial viscosity
                 vij_rij =(vel[i]-vel[j]).dot(r_ij)/(d_ij**2) if (d_ij!=0) else 0 
@@ -93,7 +98,7 @@ def EulerTimeStep(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarr
 
         drhoDt[i] = drho_dt_i
         drhoUDt[i] = drhou_dt_i
-
+    
     # Updating quantities
     for i in range(Npart):
         rho[i] += drhoDt[i]*dt
@@ -101,6 +106,9 @@ def EulerTimeStep(pos:np.ndarray, vel:np.ndarray, rho:np.ndarray, press:np.ndarr
         pos[i] += vel[i]*dt
 
         # Enforcing boundary conditions
-        boundary(pos[i],vel[i],rho[i],press[i])
+        #boundary(pos[i],vel[i],rho[i],press[i])
+    
+    #pos,ghost_pos,vel,rho,press = boundary(pos,vel,rho,press)
+    #visualize_particles(pos, ghost_pos, time_step=int(time.time()), domain_bounds=(x0D, lxDomain, y0D, lyDomain))
 
     return pos, vel, rho, press
